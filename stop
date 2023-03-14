@@ -1,0 +1,3 @@
+ps -ef | grep OCKMapDirRelay | grep -Ev 'grep|ps|awk|tail|vi|sh' | awk '{print "kill " $2}' > .killProc
+
+./.killProc
