@@ -8,7 +8,7 @@ import com.doro.itf.log.LogMgr;
 public class WatchDog extends Thread {
 
 	private long lAlarmTime = 1 * 60 * 1000;
-	private boolean runnable = true;
+	private boolean runnable = false;
 	public Service service = null;
 	public Service2 service2 = null;
 	public Imagedown imagedown = null;
@@ -44,7 +44,6 @@ public class WatchDog extends Thread {
 					service.dostart();
 					
 				}
-
 				if (service2 == null) {
 					service2 = new Service2();
 				}
@@ -53,13 +52,13 @@ public class WatchDog extends Thread {
 					service2.dostart();
 				}
 
-				// if (imagedown == null) {
-				// 	imagedown = new Imagedown();
-				// }
-				// if (!imagedown.isAlive() || !imagedown.isRunnable()) {
-				// 	log.writeLog("imagedown start", true);
-				// 	imagedown.dostart();
-				// }
+				if (imagedown == null) {
+					imagedown = new Imagedown();
+				}
+				if (!imagedown.isAlive() || !imagedown.isRunnable()) {
+					log.writeLog("imagedown start", true);
+					imagedown.dostart();
+				}
 
 			} catch (Exception e) {
 				e.printStackTrace();

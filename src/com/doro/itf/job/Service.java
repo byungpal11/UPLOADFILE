@@ -1,8 +1,11 @@
 package com.doro.itf.job;
 
 import java.io.IOException;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
+import java.text.SimpleDateFormat;
+// import java.time.LocalDateTime;
+// import java.time.format.DateTimeFormatter;
+import java.util.Date;
+
 import com.doro.itf.log.LogMgr;
 import com.doro.itf.txt.Maketxtfile;
 
@@ -33,23 +36,19 @@ public class Service extends Thread {
 
 	public void MaketxtStart() throws IOException {
 
-
-		LocalDateTime currenttime = LocalDateTime.now();
-		DateTimeFormatter format_HOUR = DateTimeFormatter.ofPattern("HHmm");
-		String HOUR = currenttime.format(format_HOUR);
+		Date currettime = new Date(System.currentTimeMillis());
+		SimpleDateFormat format_HOUR = new SimpleDateFormat("HHmm");
+		// LocalDateTime currenttime = LocalDateTime.now();
+		// DateTimeFormatter format_HOUR = DateTimeFormatter.ofPattern("HHmm");
+		String HOUR = format_HOUR.format(currettime);
 
 		if (HOUR.equals("0030")) {
-
 			makefile = new Maketxtfile();
 			log.writeLog("MAKE TXT FILE START", true);
 			makefile.doStart();
 
 		} else {
-
-			// makefile = new Maketxtfile();
-			// log.writeLog("MAKE TXT FILE START", true);
-			// makefile.doStart();
-			System.out.println(HOUR +"..");
+			System.out.println(HOUR + "..");
 		}
 
 	}

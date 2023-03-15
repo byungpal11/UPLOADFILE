@@ -2,9 +2,10 @@ package com.doro.itf.job;
 
 import java.io.File;
 import java.io.IOException;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-
+import java.text.SimpleDateFormat;
+// import java.time.LocalDateTime;
+// import java.time.format.DateTimeFormatter;
+import java.util.Date;
 import java.util.Vector;
 
 import com.doro.itf.log.LogMgr;
@@ -58,6 +59,17 @@ public class Imagedown extends Thread {
 	public void stopThread() {
 		runnable = false;
 	}
+	
+	public void sftpdisconnction() throws IOException {
+		if (channelsftp != null) {
+			channelsftp.disconnect();	
+		}
+		if (Sftpsession != null) {
+			Sftpsession.disconnect();
+		}
+		//log.writeLog("SFTP disConnection ", false);
+		//System.out.println("SFTP disConnection ");
+	}
 
 	/**
 	 * @throws IOException
@@ -65,11 +77,19 @@ public class Imagedown extends Thread {
 	 */
 	public void sftpdownload() throws IOException {
 
-		LocalDateTime currentdate = LocalDateTime.now();
-		DateTimeFormatter formatter_month = DateTimeFormatter.ofPattern("MM");
-		String year = Integer.toString(currentdate.getYear());
-		String month = currentdate.format(formatter_month);
-		String day = Integer.toString(currentdate.getDayOfMonth());
+		Date currettime = new Date(System.currentTimeMillis());
+		SimpleDateFormat format_YY= new SimpleDateFormat("yyyy");
+		SimpleDateFormat format_MM = new SimpleDateFormat("MM");
+		SimpleDateFormat format_DD= new SimpleDateFormat("dd");
+		String year = format_YY.format(currettime);
+		String month = format_MM.format(currettime);
+		String day = format_DD.format(currettime);
+		
+		// LocalDateTime currentdate = LocalDateTime.now();
+		// DateTimeFormatter formatter_month = DateTimeFormatter.ofPattern("MM");
+		// String year = Integer.toString(currentdate.getYear());
+		// String month = currentdate.format(formatter_month);
+		// String day = Integer.toString(currentdate.getDayOfMonth());
 
 		String remotedownloadpath = "";
 		String localdownloadpath = "";
@@ -100,16 +120,20 @@ public class Imagedown extends Thread {
 			Sftpsession = jsch.getSession(sftpuser, sftpurl, sftpport);
 			Sftpsession.setPassword(sftppassword);
 			Sftpsession.setConfig("StrictHostKeyChecking", "no");
-			log.writeLog("Sftp setconfig", true);
+			//og.writeLog("Sftp setconfig", false);
+			System.out.println("Sftp setconfig ");
 
 			Sftpsession.connect();
-			log.writeLog("Session Connection Success", true);
+			//log.writeLog("Session Connection Success", false);
+			System.out.println("Session Connection Success");
 
 			channelsftp = (ChannelSftp) Sftpsession.openChannel("sftp");
 			channelsftp.connect();
-			log.writeLog("channel Connection Success", true);
+			//log.writeLog("channel Connection Success", false);
+			System.out.println("channel Connection Success ");
 
 			channelsftp.cd(remotedownloadpath);
+			System.out.println(remotedownloadpath);
 
 			Vector<ChannelSftp.LsEntry> files = channelsftp.ls(remotedownloadpath);
 
@@ -121,6 +145,7 @@ public class Imagedown extends Thread {
 					File downdirectory = new File(strname);
 					if (!downdirectory.exists())
 						downdirectory.mkdir();
+					//System.out.println(files.get(i).getFilename());
 					// SFTP FILE DOWNLOAD
 					channelsftp.get(remotedownloadpath + files.get(i).getFilename(),
 							strname + files.get(i).getFilename());
@@ -136,13 +161,12 @@ public class Imagedown extends Thread {
 					channelsftp.rename(remotedownloadpath + files.get(i).getFilename(),
 							remotedownloadpath + "SUCCESS/" + files.get(i).getFilename());
 					// SFTPFILE DELETE
-					// Channelsftp.rm(downloadpath+files.get(i).getFilename()); //파일삭제
+					// Channelsftp.rm(downloadpath+files.get(i).getFilename()); 
 				}
 
 			}
 
-			channelsftp.disconnect();
-			Sftpsession.disconnect();
+			sftpdisconnction();
 
 		} catch (JSchException e) {
 
@@ -158,11 +182,7 @@ public class Imagedown extends Thread {
 			log.writeLog(e1.toString(), false);
 
 		} finally {
-			if (channelsftp != null)
-				channelsftp.disconnect();
-			if (Sftpsession != null)
-				Sftpsession.disconnect();
-
+			sftpdisconnction();
 		}
 	}
 

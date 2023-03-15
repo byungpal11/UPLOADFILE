@@ -3,8 +3,10 @@ package com.doro.itf.log;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
+import java.text.SimpleDateFormat;
+// import java.time.LocalDateTime;
+// import java.time.format.DateTimeFormatter;
+import java.util.Date;
 
 //LOG
 public class LogMgr {
@@ -48,9 +50,12 @@ public class LogMgr {
 
 	public static String logPath() {
 		String strlogpath;
-		LocalDateTime currentdate = LocalDateTime.now();
-		DateTimeFormatter fomat_currentdate = DateTimeFormatter.ofPattern("yyyyMMdd");
-		strlogpath = "./log/" + currentdate.format(fomat_currentdate) + "UPLOADFILE.log";
+
+		Date currenttime =new Date(System.currentTimeMillis());
+		SimpleDateFormat format_currenttime =new SimpleDateFormat("yyyyMMdd");
+		// LocalDateTime currentdate = LocalDateTime.now();
+		// DateTimeFormatter fomat_currentdate = DateTimeFormatter.ofPattern("yyyyMMdd");
+		strlogpath = "./log/" + format_currenttime.format(currenttime) + "UPLOADFILE.log";
 
 		return strlogpath;
 
@@ -58,10 +63,12 @@ public class LogMgr {
 
 	public static String logDescription() {
 		String logDescription;
-		LocalDateTime currentdate = LocalDateTime.now();
-		DateTimeFormatter fomat_currentdate = DateTimeFormatter.ofPattern("yyyy-MM-dd-HH:mm:ss.SSS");
+		Date currenttime =new Date(System.currentTimeMillis());
+		SimpleDateFormat format_currenttime =new SimpleDateFormat("yyyy-MM-dd-HH:mm:ss.SSS");
+		// LocalDateTime currentdate = LocalDateTime.now();
+		// DateTimeFormatter fomat_currentdate = DateTimeFormatter.ofPattern("yyyy-MM-dd-HH:mm:ss.SSS");
 
-		logDescription = "[" + currentdate.format(fomat_currentdate) + "]:";
+		logDescription = "[" + format_currenttime.format(currenttime) + "]:";
 
 		return logDescription;
 	}

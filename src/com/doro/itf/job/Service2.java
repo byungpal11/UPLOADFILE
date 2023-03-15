@@ -1,9 +1,11 @@
 package com.doro.itf.job;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+// import java.time.LocalDateTime;
+// import java.time.format.DateTimeFormatter;
+import java.util.Date;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import com.doro.itf.image.ImageRename;
 import com.doro.itf.log.LogMgr;
 
@@ -34,9 +36,11 @@ public class Service2 extends Thread {
 
 	public void ImagerenameStart() throws IOException {
 
-		LocalDateTime currenttime = LocalDateTime.now();
-		DateTimeFormatter format_HOUR = DateTimeFormatter.ofPattern("HHmm");
-		String HOUR = currenttime.format(format_HOUR);
+		Date currettime = new Date(System.currentTimeMillis());
+		SimpleDateFormat format_HOUR= new SimpleDateFormat("HHmm");
+		// LocalDateTime currenttime = LocalDateTime.now();
+		// DateTimeFormatter format_HOUR = DateTimeFormatter.ofPattern("HHmm");
+		String HOUR = format_HOUR.format(currettime);
 
 		if (HOUR.equals("0030")) {
 

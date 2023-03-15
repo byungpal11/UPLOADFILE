@@ -7,9 +7,11 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
+import java.text.SimpleDateFormat;
+// import java.time.LocalDateTime;
+// import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
@@ -19,7 +21,7 @@ import com.doro.itf.properties.Property;
 
 public class Maketxtfile extends Thread {
 
-	private Connection dbConn;
+	private Connection dbConn=null;
 	private PreparedStatement pstmt = null;
 	private ResultSet rs = null;
 
@@ -70,11 +72,11 @@ public class Maketxtfile extends Thread {
 	public void dbstart() throws IOException {
 
 		try {
-			dbConn = dbconnection.getConnection();
-			System.out.println("Database Connetion");
+			dbConn = dbconnection.getConnection();		
+			log.writeLog("Database Connetion", true);
 		} catch (SQLException e) {
 			e.printStackTrace();
-			System.out.println("Database Connetion error");
+			log.writeLog("Database Connetion error"+e.toString(), true);
 		}
 	}
 
@@ -107,9 +109,13 @@ public class Maketxtfile extends Thread {
 			if (!dbConn.isClosed()) {
 				dbConn.close();
 				System.out.println("Database disConnetion");
+				log.writeLog("Database disConnetion", true);
 			}
 		} catch (SQLException e) {
 
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
@@ -130,9 +136,7 @@ public class Maketxtfile extends Thread {
 			e.printStackTrace();
 		}
 
-	
-		log.writeLog("IC_CODE COUNT :" +ic_count, false);
-
+		log.writeLog("IC_CODE COUNT :" +ic_count, true);
 
 		try {
 			
@@ -145,9 +149,8 @@ public class Maketxtfile extends Thread {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-
-		
-		log.writeLog("In IC_CODE Search complete", false);
+	
+		log.writeLog("In IC_CODE Search complete", true);
 
 		pstmtclose();
 		rsclose();
@@ -168,7 +171,7 @@ public class Maketxtfile extends Thread {
 			e.printStackTrace();
 		}
 
-		log.writeLog("In officecode Search complete", false);
+		log.writeLog("In officecode Search complete", true);
 		pstmtclose();
 		rsclose();
 
@@ -203,10 +206,7 @@ public class Maketxtfile extends Thread {
 			e.printStackTrace();
 		}
 
-		
 		// file map save
-
-
 		try {
 			strdir = property.ReadConfig("IMAGERENAMEPATH");
 		} catch (IOException e) {
@@ -216,15 +216,21 @@ public class Maketxtfile extends Thread {
 
 		String FileName = "";
 
-		LocalDateTime currenttime =LocalDateTime.now();
-		LocalDateTime yesterday = currenttime.minusDays(1);
-		DateTimeFormatter fomat_year = DateTimeFormatter.ofPattern("yyyy");
-		DateTimeFormatter fomat_month = DateTimeFormatter.ofPattern("MM");
-		DateTimeFormatter fomat_day = DateTimeFormatter.ofPattern("dd");
+		Date currenttime = new Date();
+		Date yesterday= new Date(currenttime.getTime() + (1000 * 60 * 60 * 24 * -1));
+		SimpleDateFormat fomat_yyyy = new SimpleDateFormat("yyyy");
+		SimpleDateFormat fomat_MM = new SimpleDateFormat("MM");
+		SimpleDateFormat fomat_dd = new SimpleDateFormat("dd");
 
-		strdir += yesterday.format(fomat_year) + "/";
-		strdir += yesterday.format(fomat_month) + "/";
-		strdir += yesterday.format(fomat_day) + "/";
+		// LocalDateTime currenttime =LocalDateTime.now();
+		// LocalDateTime yesterday = currenttime.minusDays(1);
+		// DateTimeFormatter fomat_year = DateTimeFormatter.ofPattern("yyyy");
+		// DateTimeFormatter fomat_month = DateTimeFormatter.ofPattern("MM");
+		// DateTimeFormatter fomat_day = DateTimeFormatter.ofPattern("dd");
+
+		strdir += fomat_yyyy.format(yesterday) + "/";
+		strdir += fomat_MM.format(yesterday) + "/";
+		strdir += fomat_dd.format(yesterday) + "/";
 		File path = new File(strdir);
 		System.out.println(strdir);
 
@@ -373,16 +379,17 @@ public class Maketxtfile extends Thread {
 
 		String Path = "";
 
-		LocalDateTime curretdate = LocalDateTime.now();
-		DateTimeFormatter fomat_curretndate = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
-
+		Date currenttime = new Date(System.currentTimeMillis());
+		SimpleDateFormat fomatcurrenttime = new SimpleDateFormat("yyyyMMddHHmmss");	
+		//LocalDateTime curretdate = LocalDateTime.now();
+		//DateTimeFormatter fomat_curretndate = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
 		FileWriter writer = null;
 
 		String FileName = "";
 		FileName += "PVFUTR$";
 		FileName += "ex";
 		FileName += "_" + deptcode.get(Iccode);
-		FileName += "_" + curretdate.format(fomat_curretndate);
+		FileName += "_" + fomatcurrenttime.format(currenttime);
 		FileName += ".txt";
 		try {
 			Path = property.ReadConfig("WRITEPATH") + FileName;
@@ -409,14 +416,20 @@ public class Maketxtfile extends Thread {
 		
 		try {
 			dbstart();
-			//iccodein();
-			//officecode();
-			//filenameupdate();
-			//dbselect();
+			iccodein();
+			officecode();
+			filenameupdate();
+			dbselect();
 			dbclose();
 			log.writeLog("MAKE TXT FILE COMPLETE...", false);		
 		} catch (IOException e) {
 			e.printStackTrace();
+			try {
+				log.writeLog(e.toString(), false);
+			} catch (IOException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
 		}
 
 	}

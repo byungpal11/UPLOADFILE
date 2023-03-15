@@ -17,7 +17,7 @@ import com.doro.itf.zip.Imagezip;
 
 public class ImageRename extends Thread {
 
-	private Connection dbConn;
+	private Connection dbConn = null;
 	private PreparedStatement pstmt = null;
 	private ResultSet rs = null;
 	private HashMap<String, String> imagename = new HashMap<String, String>();
@@ -52,6 +52,7 @@ public class ImageRename extends Thread {
 
 		try {
 			dbConn = dbconnection.getConnection();
+			log.writeLog("Database Connetion", false);
 			System.out.println("Database Connetion");
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -94,7 +95,14 @@ public class ImageRename extends Thread {
 		}
 	}
 
-	public void getimagename() throws SQLException {
+	public void getimagename() {
+
+		try {
+			dbstart();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		String sql = "";
 
 		sql = "\n" + "SELECT \n" + "CASE WHEN  nvl(INSTR(SAVE_PHTG_NM, ';'), 0) =0 \n" + "        THEN SAVE_PHTG_NM \n"
@@ -114,19 +122,26 @@ public class ImageRename extends Thread {
 				+ "				WHERE  WOUTP_DETL_DATES LIKE TO_CHAR(SYSDATE-1, 'YYYYMMDD')||'%'\n"
 				+ "				AND T_ICCODE.IC_CODE = T_WIGT.TOLOF_CD";
 
-		pstmt = dbConn.prepareStatement(sql);
+		try {
+			pstmt = dbConn.prepareStatement(sql);
+			rs = pstmt.executeQuery();
 
-		rs = pstmt.executeQuery();
+			while (rs.next()) {
 
-		while (rs.next()) {
+				imagename.put(rs.getString(1), rs.getString(3));
+				imagename.put(rs.getString(2), rs.getString(4));
 
-			imagename.put(rs.getString(1), rs.getString(3));
-			imagename.put(rs.getString(2), rs.getString(4));
+			}
 
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 
 		pstmtclose();
 		rsclose();
+
+		dbclose();
 	}
 
 	public void Imagerename() throws IOException {
@@ -150,7 +165,6 @@ public class ImageRename extends Thread {
 		for (int i = 0; i < fList.length; i++) {
 
 			FileName = fList[i].getName();
-			// System.out.println(FileName);
 
 			String strPath = str + FileName + "/";
 			String strPaths = strPath + "RENAME/";
@@ -181,13 +195,12 @@ public class ImageRename extends Thread {
 	}
 
 	public void run() {
-		try {
-			dbstart();
-			getimagename();
-			dbclose();
-			Imagerename();
 
-		} catch (IOException | SQLException e) {
+		try {
+			getimagename();
+			Imagerename();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
