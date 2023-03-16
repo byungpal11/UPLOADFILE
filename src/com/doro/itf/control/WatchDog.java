@@ -40,24 +40,30 @@ public class WatchDog extends Thread {
 					service = new Service();
 				}
 				if (!service.isAlive() || !service.isRunnable()) {
-					log.writeLog("service start", true);
+					service =null;
+					service = new Service();		
 					service.dostart();
+					log.writeLog("service start", true);
 					
 				}
 				if (service2 == null) {
 					service2 = new Service2();
 				}
 				if (!service2.isAlive() || !service2.isRunnable()) {
-					log.writeLog("service2 start", true);
+					service2 =null;
+					service2 = new Service2();				
 					service2.dostart();
+					log.writeLog("service2 start", true);
 				}
 
 				if (imagedown == null) {
 					imagedown = new Imagedown();
 				}
 				if (!imagedown.isAlive() || !imagedown.isRunnable()) {
-					log.writeLog("imagedown start", true);
+					imagedown =null;
+					imagedown = new Imagedown();				
 					imagedown.dostart();
+					log.writeLog("imagedown start", true);
 				}
 
 			} catch (Exception e) {

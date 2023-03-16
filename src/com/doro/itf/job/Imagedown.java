@@ -59,16 +59,39 @@ public class Imagedown extends Thread {
 	public void stopThread() {
 		runnable = false;
 	}
-	
+
 	public void sftpdisconnction() throws IOException {
 		if (channelsftp != null) {
-			channelsftp.disconnect();	
+			channelsftp.disconnect();
 		}
 		if (Sftpsession != null) {
 			Sftpsession.disconnect();
 		}
-		//log.writeLog("SFTP disConnection ", false);
-		//System.out.println("SFTP disConnection ");
+		// log.writeLog("SFTP disConnection ", false);
+		// System.out.println("SFTP disConnection ");
+	}
+
+	public void sftpconnction() throws IOException {
+		try {
+			Sftpsession = jsch.getSession(sftpuser, sftpurl, sftpport);
+			Sftpsession.setPassword(sftppassword);
+			Sftpsession.setConfig("StrictHostKeyChecking", "no");
+			// og.writeLog("Sftp setconfig", false);
+			System.out.println("Sftp setconfig ");
+			Sftpsession.connect();
+			// log.writeLog("Session Connection Success", false);
+			System.out.println("Session Connection Success");
+			channelsftp = (ChannelSftp) Sftpsession.openChannel("sftp");
+			channelsftp.connect();
+			// log.writeLog("channel Connection Success", false);
+			System.out.println("channel Connection Success ");
+
+		} catch (JSchException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			log.writeLog(e.toString(), false);
+		}
+
 	}
 
 	/**
@@ -77,14 +100,21 @@ public class Imagedown extends Thread {
 	 */
 	public void sftpdownload() throws IOException {
 
+		try {
+			sftpconnction();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+
+		}
+
 		Date currettime = new Date(System.currentTimeMillis());
-		SimpleDateFormat format_YY= new SimpleDateFormat("yyyy");
+		SimpleDateFormat format_YY = new SimpleDateFormat("yyyy");
 		SimpleDateFormat format_MM = new SimpleDateFormat("MM");
-		SimpleDateFormat format_DD= new SimpleDateFormat("dd");
+		SimpleDateFormat format_DD = new SimpleDateFormat("dd");
 		String year = format_YY.format(currettime);
 		String month = format_MM.format(currettime);
 		String day = format_DD.format(currettime);
-		
+
 		// LocalDateTime currentdate = LocalDateTime.now();
 		// DateTimeFormatter formatter_month = DateTimeFormatter.ofPattern("MM");
 		// String year = Integer.toString(currentdate.getYear());
@@ -115,25 +145,25 @@ public class Imagedown extends Thread {
 		localdownpath = new File(localdownloadpath);
 		if (!localdownpath.exists())
 			localdownpath.mkdir();
-
+	
 		try {
-			Sftpsession = jsch.getSession(sftpuser, sftpurl, sftpport);
-			Sftpsession.setPassword(sftppassword);
-			Sftpsession.setConfig("StrictHostKeyChecking", "no");
-			//og.writeLog("Sftp setconfig", false);
-			System.out.println("Sftp setconfig ");
+			// Sftpsession = jsch.getSession(sftpuser, sftpurl, sftpport);
+			// Sftpsession.setPassword(sftppassword);
+			// Sftpsession.setConfig("StrictHostKeyChecking", "no");
+			// // og.writeLog("Sftp setconfig", false);
+			// System.out.println("Sftp setconfig ");
 
-			Sftpsession.connect();
-			//log.writeLog("Session Connection Success", false);
-			System.out.println("Session Connection Success");
+			// Sftpsession.connect();
+			// // log.writeLog("Session Connection Success", false);
+			// System.out.println("Session Connection Success");
 
-			channelsftp = (ChannelSftp) Sftpsession.openChannel("sftp");
-			channelsftp.connect();
-			//log.writeLog("channel Connection Success", false);
-			System.out.println("channel Connection Success ");
-
+			// channelsftp = (ChannelSftp) Sftpsession.openChannel("sftp");
+			// channelsftp.connect();
+			// // log.writeLog("channel Connection Success", false);
+			// System.out.println("channel Connection Success ");
+		
 			channelsftp.cd(remotedownloadpath);
-			System.out.println(remotedownloadpath);
+			//System.out.println(remotedownloadpath);
 
 			Vector<ChannelSftp.LsEntry> files = channelsftp.ls(remotedownloadpath);
 
@@ -145,7 +175,7 @@ public class Imagedown extends Thread {
 					File downdirectory = new File(strname);
 					if (!downdirectory.exists())
 						downdirectory.mkdir();
-					//System.out.println(files.get(i).getFilename());
+					// System.out.println(files.get(i).getFilename());
 					// SFTP FILE DOWNLOAD
 					channelsftp.get(remotedownloadpath + files.get(i).getFilename(),
 							strname + files.get(i).getFilename());
@@ -161,17 +191,13 @@ public class Imagedown extends Thread {
 					channelsftp.rename(remotedownloadpath + files.get(i).getFilename(),
 							remotedownloadpath + "SUCCESS/" + files.get(i).getFilename());
 					// SFTPFILE DELETE
-					// Channelsftp.rm(downloadpath+files.get(i).getFilename()); 
+					// Channelsftp.rm(downloadpath+files.get(i).getFilename());
 				}
 
 			}
 
 			sftpdisconnction();
 
-		} catch (JSchException e) {
-
-			e.printStackTrace();
-			log.writeLog(e.toString(), false);
 		} catch (SftpException e) {
 
 			e.printStackTrace();

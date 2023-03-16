@@ -31,8 +31,8 @@ public class DbconnectManager {
     // dbconnection
     public Connection getConnection() throws SQLException {
   
-        return DriverManager.getConnection("jdbc:apache:commons:dbcp:/pool_test");
-        //return DriverManager.getConnection("jdbc:apache:commons:dbcp:/pool_RevIFMain");
+        //return DriverManager.getConnection("jdbc:apache:commons:dbcp:/pool_test");
+        return DriverManager.getConnection("jdbc:apache:commons:dbcp:/pool_RevIFMain");
 
     }
 
