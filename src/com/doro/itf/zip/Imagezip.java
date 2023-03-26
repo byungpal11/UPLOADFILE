@@ -60,7 +60,7 @@ public class Imagezip {
 
 		for (int j = 0; j < ListPath.length; j++) {
 
-			//System.out.println(ListPath[j].getName());
+			System.out.println(ListPath[j].getName());
 			String ZipPath = strPath + ListPath[j].getName() + "/RENAME/";
 			File filePath = new File(ZipPath);
 			System.out.println(ZipPath);
